@@ -33,9 +33,10 @@ def save_image_log(image, timestamp, cheatingtype):
 
 def action_recording(result):
     with open('behavior_tracking.txt', 'w') as f:
-        f.write("index\tscore\taction\n")
+        f.write("index\tscore\taction\ttab\n")
         for i in range(len(result.face_blendshapes[0])):
             index = result.face_blendshapes[0][i].index
             score = result.face_blendshapes[0][i].score
             action = result.face_blendshapes[0][i].category_name
-            f.write(f"{index}\t{score}\t{action}\n")
+            tab = None
+            f.write(f"{index}\t{score}\t{action}\t{tab}\n")
