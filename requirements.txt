@@ -9,3 +9,6 @@ pyaudio>=0.2.12
 tensorflow-cpu>=2.10.0
 mediapipe
 Flask
+Kivy-Garden>=0.1.4
+dependencies-7.7.0
+first-2.0.2
