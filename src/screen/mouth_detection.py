@@ -1,59 +1,108 @@
+import mediapipe as mp
+import time
 import cv2
-from utils import get_face_detector, find_faces
-from face_landmarks import get_landmark_model, detect_marks, draw_marks
+import numpy as np
+import pandas as pd
 
-face_model = get_face_detector()
-landmark_model = get_landmark_model()
-outer_points = [[49, 59], [50, 58], [51, 57], [52, 56], [53, 55]]
-d_outer = [0]*5
-inner_points = [[61, 67], [62, 66], [63, 65]]
-d_inner = [0]*3
-font = cv2.FONT_HERSHEY_SIMPLEX 
-cap = cv2.VideoCapture(0)
+'''
+Originally from 
+https://github.com/FedeClaudi/LookMaNoHands/blob/82ceff9e6b346f4e6720484f7e0877bf66f07020/archive/live_tracking.py#L24
+and 
+https://developers.google.com/mediapipe/solutions/vision/face_landmarker/python#live-stream
+'''
 
-while(True):
-    ret, img = cap.read()
-    rects = find_faces(img, face_model)
-    for rect in rects:
-        shape = detect_marks(img, landmark_model, rect)
-        draw_marks(img, shape)
-        cv2.putText(img, 'Press r to record Mouth distances', (30, 30), font,
-                    1, (0, 255, 255), 2)
-        cv2.imshow("Output", img)
-    if cv2.waitKey(1) & 0xFF == ord('r'):
-        for i in range(100):
-            for i, (p1, p2) in enumerate(outer_points):
-                d_outer[i] += shape[p2][1] - shape[p1][1]
-            for i, (p1, p2) in enumerate(inner_points):
-            
-                d_inner[i] += shape[p2][1] - shape[p1][1]
-        break
-cv2.destroyAllWindows()
-d_outer[:] = [x / 100 for x in d_outer]
-d_inner[:] = [x / 100 for x in d_inner]
+import src.screen.models.face_landmark as utils
 
-while(True):
-    ret, img = cap.read()
-    rects = find_faces(img, face_model)
-    for rect in rects:
-        shape = detect_marks(img, landmark_model, rect)
-        cnt_outer = 0
-        cnt_inner = 0
-        draw_marks(img, shape[48:])
-        for i, (p1, p2) in enumerate(outer_points):
-            if d_outer[i] + 3 < shape[p2][1] - shape[p1][1]:
-                cnt_outer += 1 
-        for i, (p1, p2) in enumerate(inner_points):
-            if d_inner[i] + 2 <  shape[p2][1] - shape[p1][1]:
-                cnt_inner += 1
-        if cnt_outer > 4 and cnt_inner > 2:
-            print('Mouth open')
-            cv2.putText(img, 'Mouth open', (30, 30), font,
-                    1, (0, 255, 255), 2)
-        # show the output image with the face detections + facial landmarks
-    cv2.imshow("Output", img)
-    if cv2.waitKey(1) == ord('q'):
-        break
+# define a global variable to store the results
+results = None
+
+# Create a face landmarker instance with the live stream mode:
+def store(new_result: utils.FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
+    global results
+    results = new_result
     
-cap.release()
-cv2.destroyAllWindows()
+
+options = utils.FaceLandmarkerOptions(
+    base_options=utils.BaseOptions(model_asset_path= "face_landmarker_v2_with_blendshapes.task"),
+    running_mode=utils.VisionRunningMode.LIVE_STREAM,
+    result_callback=store,
+    output_face_blendshapes=True,
+    output_facial_transformation_matrixes=True,
+)
+
+
+
+with utils.FaceLandmarker.create_from_options(options) as landmarker:
+    # Set up video capture from default camera
+    cap = cv2.VideoCapture(0)
+
+    # set video fps to 60
+    cap.set(cv2.CAP_PROP_FPS, 60)
+    print("Starting")
+    # Set up FPS counter
+    frames = 0
+    start_time = time.time()
+
+    #   The landmarker is initialized. Use it here.
+    while cap.isOpened():
+        ret, frame = cap.read()
+        # Display frame
+        frames += 1
+
+        # Calculate FPS
+        if frames > 10:
+            fps = round(frames / (time.time() - start_time), 2)
+        else:
+            fps = 0
+        frame = cv2.putText(frame, f"FPS: {fps}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            
+        # Convert the frame received from OpenCV to a MediaPipe’s Image object.
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
+
+        # Send live image data to perform face landmarking.
+        # The results are accessible via the `result_callback` provided in
+        # the `FaceLandmarkerOptions` object.
+        # The face landmarker must be created with the live stream mode.\
+        frame_timestamp_ms = int(round(time.time() * 1000))
+        landmarker.detect_async(mp_image, frame_timestamp_ms)
+
+        if results is not None:
+            if len(results.face_landmarks) == 0:
+                print("No face detected, please back to seat")
+                
+            frame = utils.draw_landmarks_on_image(frame, results)
+
+
+            # check if a recognized action is being made
+            if len(results.face_blendshapes) >1 :
+                print(f'{len(results.face_blendshapes)} people detected')
+
+            suspicious = 0
+            eye_behaviors = []
+            for item in results.face_blendshapes[0]:
+                if item.category_name.startswith('mouth') and 0.05 <= item.score < 0.4:
+                    suspicious += 1
+
+                if item.category_name.startswith(('eyeLookDown', 'eyeLookUp')):
+                    if item.score > max_score:
+                        max_score = item.score
+                        index = item.index
+                        eye_behaviors.append(item.category_name)
+
+            while len(eye_behaviors) >= 100:
+                eye_behaviors = eye_behaviors[:-100]
+                eye_behaviors_series = pd.Series(eye_behaviors)
+                if (eye_behaviors_series.value_counts()[0] - eye_behaviors_series.value_counts()[1]) <= 20:
+                    suspicious += 1
+                break
+
+            if suspicious >= 10:
+                print('Cheating based cheat sheet suspected')
+
+                    
+
+        # show frame
+        cv2.imshow("frame", frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break

@@ -5,3 +5,4 @@ Pillow#==9.2.0
 face_recognition #==1.3.0
 keyboard
 pyaudio
+mediapipe

@@ -9,7 +9,8 @@ cap = cv2.VideoCapture(0)
 # YOLOS is a Vision Transformer (ViT) trained using the DETR loss
 detector = ObjectDetector(model_path='hustvl/yolos-base')
 
-while True:
+cap = cv2.VideoCapture(0)
+while cap.isOpened():
     ret, frame = cap.read()
     if ret == False:
         break
