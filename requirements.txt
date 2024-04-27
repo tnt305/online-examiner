@@ -12,3 +12,6 @@ Flask
 Kivy-Garden>=0.1.4
 dependencies-7.7.0
 first-2.0.2
+spello
+pyspellchecker==0.5.6
+sentence-transformers
