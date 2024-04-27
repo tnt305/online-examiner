@@ -1,135 +1,67 @@
-import os.path
-import datetime
-import pickle
-
-import tkinter as tk
 import cv2
-from PIL import Image, ImageTk
-import face_recognition
-
-import utils
-from test import test
+import numpy as np
+import os
+from datetime import datetime
 
 
-class App:
-    def __init__(self):
-        self.main_window = tk.Tk()
-        self.main_window.geometry("1200x520+350+100")
+def add_overlay_and_holder(frame):
+    # Add a 80% black transparent overlay
+    overlay = np.zeros_like(frame, dtype=np.uint8)
+    overlay.fill(0)
+    alpha = 0.8
+    frame_height, frame_width = frame.shape[:2]
+    
+    # Add a holder
+    holder_height, holder_width = 240, 320
+    holder = np.zeros_like(frame, dtype=np.uint8)
+    holder.fill(255)  # White color
+    holder_x = (frame_width - holder_width) // 2
+    holder_y = (frame_height - holder_height) // 2
+    holder_thickness = 5  # Thickness of white border around the visual
+    holder[holder_y:holder_y+holder_height, holder_x:holder_x+holder_width] = 0  # Black out the center
+    holder[holder_y+holder_thickness:holder_y+holder_height-holder_thickness,
+           holder_x+holder_thickness:holder_x+holder_width-holder_thickness] = 255  # Leave a white border
+    
+    # Apply the overlay to the frame
+    overlayed_frame = cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0)
+    
+    # Delete the overlay in the center area
+    overlayed_frame[holder_y:holder_y+holder_height, holder_x:holder_x+holder_width] = frame[holder_y:holder_y+holder_height, holder_x:holder_x+holder_width]
+    
+    return overlayed_frame
 
-        self.login_button_main_window = utils.get_button(self.main_window, 'login', 'green', self.login)
-        self.login_button_main_window.place(x=750, y=200)
-
-        self.logout_button_main_window = utils.get_button(self.main_window, 'logout', 'red', self.logout)
-        self.logout_button_main_window.place(x=750, y=300)
-
-        self.register_new_user_button_main_window = utils.get_button(self.main_window, 'register new user', 'gray',
-                                                                    self.register_new_user, fg='black')
-        self.register_new_user_button_main_window.place(x=750, y=400)
-
-        self.webcam_label = utils.get_img_label(self.main_window)
-        self.webcam_label.place(x=10, y=0, width=700, height=500)
-
-        self.add_webcam(self.webcam_label)
-
-        self.db_dir = 'data/'
-        if not os.path.exists(self.db_dir):
-            os.mkdir(self.db_dir)
-
-        self.log_path = './log.txt'
-
-    def add_webcam(self, label):
-        if 'cap' not in self.__dict__:
-            self.cap = cv2.VideoCapture(2)
-
-        self._label = label
-        self.process_webcam()
-
-    def process_webcam(self):
-        ret, frame = self.cap.read()
-        if ret:
-            self.most_recent_capture_arr = frame
-            img_ = cv2.cvtColor(self.most_recent_capture_arr, cv2.COLOR_BGR2RGB)
-            self.most_recent_capture_pil = Image.fromarray(img_)
-            imgtk = ImageTk.PhotoImage(image=self.most_recent_capture_pil)
-            self._label.imgtk = imgtk
-            self._label.configure(image=imgtk)
-
-            self._label.after(20, self.process_webcam)
-
-    def login(self):
-
-        name = utils.recognize(self.most_recent_capture_arr, self.db_dir)
-
-        if name in ['unknown_person', 'no_persons_found']:
-            utils.msg_box('Ups...', 'Unknown user. Please register new user or try again.')
-        else:
-            utils.msg_box('Welcome back !', 'Welcome, {}.'.format(name))
-            with open(self.log_path, 'a') as f:
-                f.write('{},{},in\n'.format(name, datetime.datetime.now()))
-                f.close()
-
-    def logout(self):
-        name = utils.recognize(self.most_recent_capture_arr, self.db_dir)
-
-        if name in ['unknown_person', 'no_persons_found']:
-            utils.msg_box('Ups...', 'Unknown user. Please register new user or try again.')
-        else:
-            utils.msg_box('Hasta la vista !', 'Goodbye, {}.'.format(name))
-            with open(self.log_path, 'a') as f:
-                f.write('{},{},out\n'.format(name, datetime.datetime.now()))
-                f.close()
-
-
-    def register_new_user(self):
-        self.register_new_user_window = tk.Toplevel(self.main_window)
-        self.register_new_user_window.geometry("1200x520+370+120")
-
-        self.accept_button_register_new_user_window = utils.get_button(self.register_new_user_window, 'Accept', 'green', self.accept_register_new_user)
-        self.accept_button_register_new_user_window.place(x=750, y=300)
-
-        self.try_again_button_register_new_user_window = utils.get_button(self.register_new_user_window, 'Try again', 'red', self.try_again_register_new_user)
-        self.try_again_button_register_new_user_window.place(x=750, y=400)
-
-        self.capture_label = utils.get_img_label(self.register_new_user_window)
-        self.capture_label.place(x=10, y=0, width=700, height=500)
-
-        self.add_img_to_label(self.capture_label)
-
-        self.entry_text_register_new_user = utils.get_entry_text(self.register_new_user_window)
-        self.entry_text_register_new_user.place(x=750, y=150)
-
-        self.text_label_register_new_user = utils.get_text_label(self.register_new_user_window, 'Please, \ninput username:')
-        self.text_label_register_new_user.place(x=750, y=70)
-
-    def try_again_register_new_user(self):
-        self.register_new_user_window.destroy()
-
-    def add_img_to_label(self, label):
-        imgtk = ImageTk.PhotoImage(image=self.most_recent_capture_pil)
-        os.makedirs(f'{self.db_dir}/{self.text_label_register_new_user}', exist_ok = True)
-        cv2.imwrite(f'{self.db_dir}/{self.text_label_register_new_user}', imgtk)
-        label.imgtk = imgtk
-        label.configure(image=imgtk)
-
-        self.register_new_user_capture = self.most_recent_capture_arr.copy()
-
-
-    def start(self):
-        self.main_window.mainloop()
-
-    def accept_register_new_user(self):
-        name = self.entry_text_register_new_user.get(1.0, "end-1c")
-
-        embeddings = face_recognition.face_encodings(self.register_new_user_capture)[0]
-
-        file = open(os.path.join(self.db_dir, '{}.pickle'.format(name)), 'wb')
-        pickle.dump(embeddings, file)
-
-        utils.msg_box('Success!', 'User was registered successfully !')
-
-        self.register_new_user_window.destroy()
-
+def main():
+    cap = cv2.VideoCapture(0)  # Change 0 to the camera index if you have multiple cameras
+    
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        
+        # Add overlay and holder to the frame
+        frame_with_overlay = add_overlay_and_holder(frame)
+        
+        # Show the resulting frame
+        cv2.imshow('Camera with Overlay and Holder', frame_with_overlay)
+        
+        # Save the image area 320x240 if 'r' is pressed
+        key = cv2.waitKey(1)
+        if key == ord('r'):
+            # Get the region of interest (ROI)
+            frame_roi = frame[60:300, 160:480]  # 320x240 starting from (160, 60)
+            
+            now = datetime.now()
+            timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
+            path = 'data/login_check/'
+            os.makedirs(path, exist_ok=True)
+            cv2.imwrite(f'{path}/save_image_{timestamp}.jpg', frame_roi)
+        
+        # Break the loop if 'q' is pressed
+        if key == ord('q'):
+            break
+    
+    cap.release()
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    app = App()
-    app.start()
+    main()
