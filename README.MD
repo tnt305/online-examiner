@@ -4,7 +4,7 @@ Exam proctoring is the task where a system automatically monitors your camera an
 
 Based on the given topic, I have done some research both on the task itself and on what behaviors are considered to be inappropriate activities and comes to the pipeline as below
 <p align="center">
- <img src="fig/pipeline.png" width="800">
+ <img src="fig/pipeline.png" width="900">
 </p>
 
 Earlier approaches addressed exam monitoring through live video, employing Continuous Face Recognition, Activity Monitoring, and Mouse Tracking. Additionally, audio checks were utilized to identify suspicious voices during the test. However the records of what so-called cheat is too frequent which saying there are cases when the conditions are strictly applied into the algorithm and cause false positive situiation reported.
