@@ -1,16 +1,17 @@
-import mediapipe as mp
-import time
-import cv2
-import numpy as np
-#import pandas as pd
-
 '''
+Action detection are recognition chains of activities during the class, which considered 
+to be suspicious including cheating using mobile or call for support. In this branch, we
+only consider behaviors related to vision task.
+
 Originally from 
 https://github.com/FedeClaudi/LookMaNoHands/blob/82ceff9e6b346f4e6720484f7e0877bf66f07020/archive/live_tracking.py#L24
 and 
 https://developers.google.com/mediapipe/solutions/vision/face_landmarker/python#live-stream
 '''
-
+import mediapipe as mp
+import time
+import cv2
+import numpy as np
 from src.screen.models.face_landmark import * 
 
 # define a global variable to store the results
