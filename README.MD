@@ -4,5 +4,5 @@ Exam proctoring is the task where a system automatically monitors your camera an
 
 Based on the given topic, I have done some research both on the task itself and on what behaviors are considered to be inappropriate activities. 
 <p align="center">
- <img src="pipeline.png" width="800">
+ <img src="fig/pipeline.png" width="800">
 </p>
