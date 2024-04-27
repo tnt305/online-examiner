@@ -2,7 +2,7 @@ import mediapipe as mp
 import time
 import cv2
 import numpy as np
-import pandas as pd
+#import pandas as pd
 
 '''
 Originally from 
@@ -11,20 +11,20 @@ and
 https://developers.google.com/mediapipe/solutions/vision/face_landmarker/python#live-stream
 '''
 
-import src.screen.models.face_landmark as utils
+from src.screen.models.face_landmark import * 
 
 # define a global variable to store the results
 results = None
 
 # Create a face landmarker instance with the live stream mode:
-def store(new_result: utils.FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
+def store(new_result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
     global results
     results = new_result
     
 
-options = utils.FaceLandmarkerOptions(
-    base_options=utils.BaseOptions(model_asset_path= "face_landmarker_v2_with_blendshapes.task"),
-    running_mode=utils.VisionRunningMode.LIVE_STREAM,
+options = FaceLandmarkerOptions(
+    base_options= BaseOptions(model_asset_path= "face_landmarker_v2_with_blendshapes.task"),
+    running_mode= VisionRunningMode.LIVE_STREAM,
     result_callback=store,
     output_face_blendshapes=True,
     output_facial_transformation_matrixes=True,
@@ -32,7 +32,7 @@ options = utils.FaceLandmarkerOptions(
 
 
 
-with utils.FaceLandmarker.create_from_options(options) as landmarker:
+with FaceLandmarker.create_from_options(options) as landmarker:
     # Set up video capture from default camera
     cap = cv2.VideoCapture(0)
 
@@ -70,7 +70,7 @@ with utils.FaceLandmarker.create_from_options(options) as landmarker:
             if len(results.face_landmarks) == 0:
                 print("No face detected, please back to seat")
                 
-            frame = utils.draw_landmarks_on_image(frame, results)
+            frame = draw_landmarks_on_image(frame, results)
 
 
             # check if a recognized action is being made
@@ -91,8 +91,12 @@ with utils.FaceLandmarker.create_from_options(options) as landmarker:
 
             while len(eye_behaviors) >= 100:
                 eye_behaviors = eye_behaviors[:-100]
-                eye_behaviors_series = pd.Series(eye_behaviors)
-                if (eye_behaviors_series.value_counts()[0] - eye_behaviors_series.value_counts()[1]) <= 20:
+                eye_behaviors_series = list(eye_behaviors)
+                # Custom count logic
+                eye_behavior_counts = {behavior: eye_behaviors_series.count(behavior) for behavior in set(eye_behaviors_series)}
+
+                # Check the difference between counts of the two values
+                if abs(eye_behavior_counts[0] - eye_behavior_counts[1]) <= 20:
                     suspicious += 1
                 break
 
