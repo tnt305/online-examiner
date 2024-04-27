@@ -16,3 +16,4 @@ spello
 pyspellchecker==0.5.6
 sentence-transformers
 pandas-2.2.2
+dlib
