@@ -18,9 +18,8 @@ My solutions comes with 3 Stage-approach below:
 <p align="center">
  <img src="fig/face_and_id_selfcap.png.jpg" width="200">
 </p>
-    -  We can use Yolo family model, action have not done on this task but i provided with a jupyter notebook for a quick overview of training and inferencing the model
-
-    - CRNN for text recognition on vision x NLP aspect provided in 
+    -  We can use Yolo family model, action have not done on this task but i provided with a jupyter notebook for a quick overview of training and inferencing the model 
+CRNN for text recognition on vision x NLP aspect provided in 
 
 ```sh 
 python crnn.py 
