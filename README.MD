@@ -20,7 +20,11 @@ My solutions comes with 3 Stage-approach below:
 </p>
     -  We can use Yolo family model, action have not done on this task but i provided with a jupyter notebook for a quick overview of training and inferencing the model
 
-    - CRNN for text recognition on vision x NLP aspect provided in ```sh python crnn.py ```
+    - CRNN for text recognition on vision x NLP aspect provided in 
+
+```sh 
+python crnn.py 
+```
 
    - Face capturing:
        - Same goes with the previous
