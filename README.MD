@@ -1,6 +1,6 @@
-## Exam Proctoring Systems
+# Exam Proctoring Systems
 
-### Task overview
+## Task overview
 Exam proctoring is the task where a system automatically monitors your camera and microphone to ensure the integrity and fairness of an exam by detecting suspicious activity, like looking away from the screen for extended periods or unauthorized noises, ultimately improving the quality of the assessment.
 
 Based on the given topic, I have done some research both on the task itself and on what behaviors are considered to be inappropriate activities and comes to the pipeline as below
@@ -10,10 +10,9 @@ Based on the given topic, I have done some research both on the task itself and 
 
 Earlier approaches addressed exam monitoring through live video, employing Continuous Face Recognition, Activity Monitoring, and Mouse Tracking. Additionally, audio checks were utilized to identify suspicious voices during the test. However the records of what so-called cheat is too frequent which saying there are cases when the conditions are strictly applied into the algorithm and cause false positive situiation reported.
 
-### Function propose
+## Function propose
 My solutions comes with 3 Stage-approach below:
-
-First Stage:
+### First Stage:
 - IdCard Verification:
     - We dont want to make the model takes time on reasoning where is the bboxes, and expect the candidates will be the one who input real-time picture
 <p align="center">
@@ -24,7 +23,7 @@ First Stage:
 - Face capturing:
     - Same goes with the previous
 
-Second Stage
+### Second Stage
 - Adjust the setting for audio detection, recoreded every 10 or 30s for space utilization; we can confirm that the audio detects one voice, indicating that the candidates are verbally reading or speaking aloud during the tests.
 ```sh
 cd src/audio/
@@ -59,34 +58,42 @@ python object_detection.py
     # prevention remote users via TeamViewer/Chrome Remote Desktop
     python remote_tracker.py
     ```
+### Third Stage
 - We can create a exam score (intergrity score), which differ from exam results, it tell us how honesty is the candidate, a score of 100 means fully trustable, the smaller grade, the higher level of untrustworthiness.
 ```python
 ## HAVE NOT COMPLETED YET
 ## Persudo code
-    def truth_score(max_score, file_path_to_logs):
-        '''
-        logs file include:
-        cheat_type, 
-        message_type, 
-        untrust_count (always 1)
-        '''
-        #either csv or txt
-        logs = read_logs(file_path_to_logs) 
+def truth_score(max_score, file_path_to_logs):
+    '''
+    logs file include:
+    cheat_type, 
+    message_type, 
+    untrust_count (always 1)
+    '''
+    #either csv or txt
+    logs = read_logs(file_path_to_logs) 
+
+    # Initialize final score
+    final_score = max_score
     
-        # Initialize final score
-        final_score = max_score
+    # Process cheat logs
+    for log in logs:
+        cheat_type = log.cheat_type
+        message_type = log.message_type
         
-        # Process cheat logs
-        for log in logs:
-            cheat_type = log.cheat_type
-            message_type = log.message_type
-            
-            # Deduct score based on cheat type and message type
-            if message_type == "warning":
-                final_score = final_score - (cheat_type * 0.5)
-            else:
-                final_score = final_score - 1
-        
-        # Return the final score
-        return final_score
+        # Deduct score based on cheat type and message type
+        if message_type == "warning":
+            final_score = final_score - (cheat_type * 0.5)
+        else:
+            final_score = final_score - 1
+    
+    # Return the final score
+    return final_score
 ```
+- I also provided hypothesis test, which is the post-processing after taking the test, final score/ any analysis for the test will be processed here
+```sh
+python hypothesis.py
+```
+## Demo Function
+provided [here](https://drive.google.com/file/d/1cVhZNMF4-3nIiwyeNBBIr35KVCYGTvi6/view?usp=sharing)
+Any information, further requirements please contact me through thiendc3005@gmail.com
