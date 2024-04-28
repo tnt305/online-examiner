@@ -17,7 +17,7 @@ First Stage:
 - IdCard Verification:
     - We dont want to make the model takes time on reasoning where is the bboxes, and expect the candidates will be the one who input real-time picture
 <p align="center">
- <img src="fig/face_and_id_selfcap.png.jpg" width="600">
+ <img src="fig/face_and_id_selfcap.png.jpg" width="200">
 </p>
     - We can use Yolo family model, action have not done on this task but i provided with a jupyter notebook for a quick overview of training and inferencing the model
     - CRNN for text recognition on vision x NLP aspect provided in `crnn.py`
