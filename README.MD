@@ -18,10 +18,12 @@ My solutions comes with 3 Stage-approach below:
 <p align="center">
  <img src="fig/face_and_id_selfcap.png.jpg" width="200">
 </p>
-    - We can use Yolo family model, action have not done on this task but i provided with a jupyter notebook for a quick overview of training and inferencing the model
-    - CRNN for text recognition on vision x NLP aspect provided in ``` crnn.py ```
-- Face capturing:
-    - Same goes with the previous
+    -  We can use Yolo family model, action have not done on this task but i provided with a jupyter notebook for a quick overview of training and inferencing the model
+
+    - CRNN for text recognition on vision x NLP aspect provided in ```sh python crnn.py ```
+
+   - Face capturing:
+       - Same goes with the previous
 
 ### Second Stage
 - Adjust the setting for audio detection, recoreded every 10 or 30s for space utilization; we can confirm that the audio detects one voice, indicating that the candidates are verbally reading or speaking aloud during the tests.
