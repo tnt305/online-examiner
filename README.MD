@@ -95,5 +95,6 @@ def truth_score(max_score, file_path_to_logs):
 python hypothesis.py
 ```
 ## Demo Function
-provided [here](https://drive.google.com/file/d/1cVhZNMF4-3nIiwyeNBBIr35KVCYGTvi6/view?usp=sharing)
+Provided [here](https://drive.google.com/file/d/1cVhZNMF4-3nIiwyeNBBIr35KVCYGTvi6/view?usp=sharing)
+
 Any information, further requirements please contact me through thiendc3005@gmail.com
