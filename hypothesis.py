@@ -48,19 +48,19 @@ def work_time_hypotest(log_file, total_exam_duration, ratio = 0.7, max_duration 
     if check_normality(duration, p) < p:
         print('data not normally distributed, chi-quare test')
         t_statistic, p_value = ztest(duration, ratio*total_exam_duration/len(duration), alternative= 'larger')
-        if p_value/2 <= 0.5:
+        if p_value/2 <= 0.05:
             print('Not sure that the candidate is cheating')
         else:
             print('Cheater detected')
     else:
         print('data normally distributed, t-test taking')
         t_statistic, p_value = ttest_1samp(duration, ratio*total_exam_duration/len(duration), alternative = 'greater')
-        if p_value/2 <= 0.5:
+        if p_value/2 <= 0.05:
             print('Not sure that the candidate is cheating')
         else:
             print('Cheater detected')
 
-def cheat_pair_hypotest(log_file, p = 0.05, action = 'LookingLeft', reversed_action = 'LookingRight', p = 0.05):
+def cheat_pair_hypotest(log_file, p = 0.05, action = 'LookingLeft', reversed_action = 'LookingRight'):
     '''
     We take the test between cases with actions that supposing opposed to each other
     For example: if a person is looking right as his usual action but the frequency and time of looking left is similar,
