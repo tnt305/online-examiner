@@ -14,11 +14,11 @@ Earlier approaches addressed exam monitoring through live video, employing Conti
 My solutions comes with 3 Stage-approach below:
 ### First Stage:
 - IdCard Verification:
-    - We dont want to make the model takes time on reasoning where is the bboxes, and expect the candidates will be the one who input real-time picture
+    - We dont want to make the model takes time on reasoning where is the bboxes, and expect the candidates will be the one who input real-time picture. The below is an example of how to make the candidates know where to focus on the streaming screen.
 <p align="center">
  <img src="fig/face_and_id_selfcap.png.jpg" width="200">
 </p>
-    -  We can use Yolo family model, action have not done on this task but i provided with a jupyter notebook for a quick overview of training and inferencing the model 
+-  We can use Yolo family model, action have not done on this task but i provided with a jupyter notebook for a quick overview of training and inferencing the model 
 CRNN for text recognition on vision x NLP aspect provided in 
 
 ```sh 
