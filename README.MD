@@ -46,11 +46,11 @@ python object_detection.py
     ```sh
     cd src/screen/
     # soft tracking here, we based on maximum probability of 28 actions 
-    during the class and save records of the most frequent one.
+    # during the class and save records of the most frequent one.
     python action_detection.py
 
     # hard tracking, we based directly on the location of eye balls
-    to determine the direction that the eyes are looking.
+    # to determine the direction that the eyes are looking.
     python eye_tracker.py
     ```
 - Add-in remote desktop alert and using web search alert.
@@ -67,7 +67,7 @@ python object_detection.py
 - We can create a exam score (intergrity score), which differ from exam results, it tell us how honesty is the candidate, a score of 100 means fully trustable, the smaller grade, the higher level of untrustworthiness.
 ```python
 ## HAVE NOT COMPLETED YET
-## Persudo code
+## Persudo code 
 def truth_score(max_score, file_path_to_logs):
     '''
     logs file include:
